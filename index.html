@@ -1,0 +1,1042 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-search.css">
+        <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/multi-style-layer.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="js/leaflet-search.js"></script>
+        <script src="data/LimiteVillageMalicounda_1.js"></script>
+        <script src="data/LimiteMalicounda_2.js"></script>
+        <script src="data/FORETCLASSE_3.js"></script>
+        <script src="data/PSOCEANS_4.js"></script>
+        <script src="data/ParcellesDisponibles_5.js"></script>
+        <script src="data/InfrastructuresPubliques_6.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+
+            if (e.target.feature.geometry.type === 'LineString' || e.target.feature.geometry.type === 'MultiLineString') {
+              highlightLayer.setStyle({
+                color: '#ffff00',
+              });
+            } else {
+              highlightLayer.setStyle({
+                fillColor: '#ffff00',
+                fillOpacity: 1
+              });
+            }
+            highlightLayer.openPopup();
+        }
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[14.239469590211687,-17.097723668500315],[14.527440724484611,-16.533787629190652]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_GoogleSatellite_0');
+        map.getPane('pane_GoogleSatellite_0').style.zIndex = 400;
+        var layer_GoogleSatellite_0 = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleSatellite_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+        });
+        layer_GoogleSatellite_0;
+        map.addLayer(layer_GoogleSatellite_0);
+        function pop_LimiteVillageMalicounda_1(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Nom</th>\
+                        <td>' + (feature.properties['Nom'] !== null ? autolinker.link(String(feature.properties['Nom']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Superficie</th>\
+                        <td>' + (feature.properties['Superficie'] !== null ? autolinker.link(String(feature.properties['Superficie']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LimiteVillageMalicounda_1_0(feature) {
+            switch(String(feature.properties['Nom'])) {
+                case 'FALOKH':
+                    return {
+                pane: 'pane_LimiteVillageMalicounda_1',
+                opacity: 1,
+                color: 'rgba(77,175,74,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+                    break;
+                case 'FANDANE':
+                    return {
+                pane: 'pane_LimiteVillageMalicounda_1',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+                    break;
+                case 'GAGNABOUGOU':
+                    return {
+                pane: 'pane_LimiteVillageMalicounda_1',
+                opacity: 1,
+                color: 'rgba(175,131,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+                    break;
+                case 'KEUR BALLA LO':
+                    return {
+                pane: 'pane_LimiteVillageMalicounda_1',
+                opacity: 1,
+                color: 'rgba(84,119,53,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+                    break;
+                case 'MALICOUNDA BAMBARA':
+                    return {
+                pane: 'pane_LimiteVillageMalicounda_1',
+                opacity: 1,
+                color: 'rgba(244,12,12,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 4.0, 
+                fillOpacity: 0,
+                interactive: false,
+            }
+                    break;
+                case 'MALICOUNDA SERERE':
+                    return {
+                pane: 'pane_LimiteVillageMalicounda_1',
+                opacity: 1,
+                color: 'rgba(246,18,197,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+                    break;
+                case 'MALICOUNDA WOLOF':
+                    return {
+                pane: 'pane_LimiteVillageMalicounda_1',
+                opacity: 1,
+                color: 'rgba(233,153,16,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+                    break;
+                case 'MBALLING':
+                    return {
+                pane: 'pane_LimiteVillageMalicounda_1',
+                opacity: 1,
+                color: 'rgba(55,190,235,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+                    break;
+                case 'MBOULEME':
+                    return {
+                pane: 'pane_LimiteVillageMalicounda_1',
+                opacity: 1,
+                color: 'rgba(123,53,101,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+                    break;
+                case 'NIANING':
+                    return {
+                pane: 'pane_LimiteVillageMalicounda_1',
+                opacity: 1,
+                color: 'rgba(71,250,103,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+                    break;
+                case 'POINTE SARENE':
+                    return {
+                pane: 'pane_LimiteVillageMalicounda_1',
+                opacity: 1,
+                color: 'rgba(171,9,241,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+                    break;
+                case 'ROFF':
+                    return {
+                pane: 'pane_LimiteVillageMalicounda_1',
+                opacity: 1,
+                color: 'rgba(41,10,242,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+                    break;
+                case 'SALY AREODROME':
+                    return {
+                pane: 'pane_LimiteVillageMalicounda_1',
+                opacity: 1,
+                color: 'rgba(235,255,185,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+                    break;
+                case 'SIDIBOUGOU':
+                    return {
+                pane: 'pane_LimiteVillageMalicounda_1',
+                opacity: 1,
+                color: 'rgba(251,8,138,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+                    break;
+                case 'SINTHIOU MBADANE PEULH':
+                    return {
+                pane: 'pane_LimiteVillageMalicounda_1',
+                opacity: 1,
+                color: 'rgba(192,144,145,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+                    break;
+                case 'SINTHIOU MBADANE SERERE':
+                    return {
+                pane: 'pane_LimiteVillageMalicounda_1',
+                opacity: 1,
+                color: 'rgba(244,12,12,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 4.0, 
+                fillOpacity: 0,
+                interactive: false,
+            }
+                    break;
+                case 'TAKHOUM':
+                    return {
+                pane: 'pane_LimiteVillageMalicounda_1',
+                opacity: 1,
+                color: 'rgba(144,195,142,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+                    break;
+                case 'WARANG':
+                    return {
+                pane: 'pane_LimiteVillageMalicounda_1',
+                opacity: 1,
+                color: 'rgba(218,28,235,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_LimiteVillageMalicounda_1');
+        map.getPane('pane_LimiteVillageMalicounda_1').style.zIndex = 401;
+        map.getPane('pane_LimiteVillageMalicounda_1').style['mix-blend-mode'] = 'normal';
+        var layer_LimiteVillageMalicounda_1 = new L.geoJson(json_LimiteVillageMalicounda_1, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_LimiteVillageMalicounda_1',
+            layerName: 'layer_LimiteVillageMalicounda_1',
+            pane: 'pane_LimiteVillageMalicounda_1',
+            onEachFeature: pop_LimiteVillageMalicounda_1,
+            style: style_LimiteVillageMalicounda_1_0,
+        });
+        bounds_group.addLayer(layer_LimiteVillageMalicounda_1);
+        map.addLayer(layer_LimiteVillageMalicounda_1);
+        function pop_LimiteMalicounda_2(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['id'] !== null ? autolinker.link(String(feature.properties['id']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Nom'] !== null ? autolinker.link(String(feature.properties['Nom']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Superficie'] !== null ? autolinker.link(String(feature.properties['Superficie']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LimiteMalicounda_2_0() {
+            return {
+                pane: 'pane_LimiteMalicounda_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 3.0, 
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_LimiteMalicounda_2');
+        map.getPane('pane_LimiteMalicounda_2').style.zIndex = 402;
+        map.getPane('pane_LimiteMalicounda_2').style['mix-blend-mode'] = 'normal';
+        var layer_LimiteMalicounda_2 = new L.geoJson(json_LimiteMalicounda_2, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_LimiteMalicounda_2',
+            layerName: 'layer_LimiteMalicounda_2',
+            pane: 'pane_LimiteMalicounda_2',
+            onEachFeature: pop_LimiteMalicounda_2,
+            style: style_LimiteMalicounda_2_0,
+        });
+        bounds_group.addLayer(layer_LimiteMalicounda_2);
+        map.addLayer(layer_LimiteMalicounda_2);
+        function pop_FORETCLASSE_3(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Nom</th>\
+                        <td>' + (feature.properties['Nom'] !== null ? autolinker.link(String(feature.properties['Nom']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Superfcie</th>\
+                        <td>' + (feature.properties['Superfcie'] !== null ? autolinker.link(String(feature.properties['Superfcie']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        var pattern_FORETCLASSE_3_0 = new L.StripePattern({
+            weight: 0.3,
+            spaceWeight: 2.0,
+            color: '#7edf5e',
+            opacity: 1.0,
+            spaceOpacity: 0,
+            angle: 315
+        });
+        pattern_FORETCLASSE_3_0.addTo(map);
+        function style_FORETCLASSE_3_0() {
+            return {
+                pane: 'pane_FORETCLASSE_3',
+                stroke: false,
+                fillOpacity: 1,
+                fillPattern: pattern_FORETCLASSE_3_0,
+                interactive: false,
+            }
+        }
+        var pattern_FORETCLASSE_3_1 = new L.StripePattern({
+            weight: 0.3,
+            spaceWeight: 2.0,
+            color: '#7edf5e',
+            opacity: 1.0,
+            spaceOpacity: 0,
+            angle: 225
+        });
+        pattern_FORETCLASSE_3_1.addTo(map);
+        function style_FORETCLASSE_3_1() {
+            return {
+                pane: 'pane_FORETCLASSE_3',
+                stroke: false,
+                fillOpacity: 1,
+                fillPattern: pattern_FORETCLASSE_3_1,
+                interactive: false,
+            }
+        }
+        function style_FORETCLASSE_3_2() {
+            return {
+                pane: 'pane_FORETCLASSE_3',
+                opacity: 1,
+                color: 'rgba(126,223,94,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 2.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_FORETCLASSE_3');
+        map.getPane('pane_FORETCLASSE_3').style.zIndex = 403;
+        map.getPane('pane_FORETCLASSE_3').style['mix-blend-mode'] = 'normal';
+        var layer_FORETCLASSE_3 = new L.geoJson.multiStyle(json_FORETCLASSE_3, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_FORETCLASSE_3',
+            layerName: 'layer_FORETCLASSE_3',
+            pane: 'pane_FORETCLASSE_3',
+            onEachFeature: pop_FORETCLASSE_3,
+            styles: [style_FORETCLASSE_3_0,style_FORETCLASSE_3_1,style_FORETCLASSE_3_2,]
+        });
+        bounds_group.addLayer(layer_FORETCLASSE_3);
+        map.addLayer(layer_FORETCLASSE_3);
+        function pop_PSOCEANS_4(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Nom</th>\
+                        <td>' + (feature.properties['Nom'] !== null ? autolinker.link(String(feature.properties['Nom']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Nicad</th>\
+                        <td>' + (feature.properties['Nicad'] !== null ? autolinker.link(String(feature.properties['Nicad']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">NumParcell</th>\
+                        <td>' + (feature.properties['NumParcell'] !== null ? autolinker.link(String(feature.properties['NumParcell']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">ZONE</th>\
+                        <td>' + (feature.properties['ZONE'] !== null ? autolinker.link(String(feature.properties['ZONE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Attributio</th>\
+                        <td>' + (feature.properties['Attributio'] !== null ? autolinker.link(String(feature.properties['Attributio']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Superficie</th>\
+                        <td>' + (feature.properties['Superficie'] !== null ? autolinker.link(String(feature.properties['Superficie']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Cotes'] !== null ? autolinker.link(String(feature.properties['Cotes']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">PI</th>\
+                        <td>' + (feature.properties['PI'] !== null ? autolinker.link(String(feature.properties['PI']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_PSOCEANS_4_0(feature) {
+            switch(String(feature.properties['ZONE'])) {
+                case 'Pointe Sarene Villeneuve':
+                    return {
+                pane: 'pane_PSOCEANS_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(248,122,12,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Pointe Sarene Sapco':
+                    return {
+                pane: 'pane_PSOCEANS_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(253,191,111,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Pointe Sarene City':
+                    return {
+                pane: 'pane_PSOCEANS_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(244,12,244,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Pointe Sarene City Extension':
+                    return {
+                pane: 'pane_PSOCEANS_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(251,211,50,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_PSOCEANS_4');
+        map.getPane('pane_PSOCEANS_4').style.zIndex = 404;
+        map.getPane('pane_PSOCEANS_4').style['mix-blend-mode'] = 'normal';
+        var layer_PSOCEANS_4 = new L.geoJson(json_PSOCEANS_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_PSOCEANS_4',
+            layerName: 'layer_PSOCEANS_4',
+            pane: 'pane_PSOCEANS_4',
+            onEachFeature: pop_PSOCEANS_4,
+            style: style_PSOCEANS_4_0,
+        });
+        bounds_group.addLayer(layer_PSOCEANS_4);
+        map.addLayer(layer_PSOCEANS_4);
+        function pop_ParcellesDisponibles_5(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Nom</th>\
+                        <td>' + (feature.properties['Nom'] !== null ? autolinker.link(String(feature.properties['Nom']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Nicad</th>\
+                        <td>' + (feature.properties['Nicad'] !== null ? autolinker.link(String(feature.properties['Nicad']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">NumParcell</th>\
+                        <td>' + (feature.properties['NumParcell'] !== null ? autolinker.link(String(feature.properties['NumParcell']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">ZONE</th>\
+                        <td>' + (feature.properties['ZONE'] !== null ? autolinker.link(String(feature.properties['ZONE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Superficie</th>\
+                        <td>' + (feature.properties['Superficie'] !== null ? autolinker.link(String(feature.properties['Superficie']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Cotes</th>\
+                        <td>' + (feature.properties['Cotes'] !== null ? autolinker.link(String(feature.properties['Cotes']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_ParcellesDisponibles_5_0() {
+            return {
+                pane: 'pane_ParcellesDisponibles_5',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(4,185,1,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_ParcellesDisponibles_5');
+        map.getPane('pane_ParcellesDisponibles_5').style.zIndex = 405;
+        map.getPane('pane_ParcellesDisponibles_5').style['mix-blend-mode'] = 'normal';
+        var layer_ParcellesDisponibles_5 = new L.geoJson(json_ParcellesDisponibles_5, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_ParcellesDisponibles_5',
+            layerName: 'layer_ParcellesDisponibles_5',
+            pane: 'pane_ParcellesDisponibles_5',
+            onEachFeature: pop_ParcellesDisponibles_5,
+            style: style_ParcellesDisponibles_5_0,
+        });
+        bounds_group.addLayer(layer_ParcellesDisponibles_5);
+        map.addLayer(layer_ParcellesDisponibles_5);
+        function pop_InfrastructuresPubliques_6(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Nom</th>\
+                        <td>' + (feature.properties['Nom'] !== null ? autolinker.link(String(feature.properties['Nom']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Nicad</th>\
+                        <td>' + (feature.properties['Nicad'] !== null ? autolinker.link(String(feature.properties['Nicad']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">NumParcell</th>\
+                        <td>' + (feature.properties['NumParcell'] !== null ? autolinker.link(String(feature.properties['NumParcell']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">ZONE</th>\
+                        <td>' + (feature.properties['ZONE'] !== null ? autolinker.link(String(feature.properties['ZONE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Superficie</th>\
+                        <td>' + (feature.properties['Superficie'] !== null ? autolinker.link(String(feature.properties['Superficie']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Cotes</th>\
+                        <td>' + (feature.properties['Cotes'] !== null ? autolinker.link(String(feature.properties['Cotes']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        var pattern_InfrastructuresPubliques_6_0 = new L.StripePattern({
+            weight: 0.3,
+            spaceWeight: 2.0,
+            color: '#69f505',
+            opacity: 1.0,
+            spaceOpacity: 0,
+            angle: 315
+        });
+        pattern_InfrastructuresPubliques_6_0.addTo(map);
+        function style_InfrastructuresPubliques_6_0() {
+            return {
+                pane: 'pane_InfrastructuresPubliques_6',
+                stroke: false,
+                fillOpacity: 1,
+                fillPattern: pattern_InfrastructuresPubliques_6_0,
+                interactive: true,
+            }
+        }
+        var pattern_InfrastructuresPubliques_6_1 = new L.StripePattern({
+            weight: 0.3,
+            spaceWeight: 2.0,
+            color: '#69f505',
+            opacity: 1.0,
+            spaceOpacity: 0,
+            angle: 225
+        });
+        pattern_InfrastructuresPubliques_6_1.addTo(map);
+        function style_InfrastructuresPubliques_6_1() {
+            return {
+                pane: 'pane_InfrastructuresPubliques_6',
+                stroke: false,
+                fillOpacity: 1,
+                fillPattern: pattern_InfrastructuresPubliques_6_1,
+                interactive: true,
+            }
+        }
+        function style_InfrastructuresPubliques_6_2() {
+            return {
+                pane: 'pane_InfrastructuresPubliques_6',
+                opacity: 1,
+                color: 'rgba(105,245,5,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 2.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_InfrastructuresPubliques_6');
+        map.getPane('pane_InfrastructuresPubliques_6').style.zIndex = 406;
+        map.getPane('pane_InfrastructuresPubliques_6').style['mix-blend-mode'] = 'normal';
+        var layer_InfrastructuresPubliques_6 = new L.geoJson.multiStyle(json_InfrastructuresPubliques_6, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_InfrastructuresPubliques_6',
+            layerName: 'layer_InfrastructuresPubliques_6',
+            pane: 'pane_InfrastructuresPubliques_6',
+            onEachFeature: pop_InfrastructuresPubliques_6,
+            styles: [style_InfrastructuresPubliques_6_0,style_InfrastructuresPubliques_6_1,style_InfrastructuresPubliques_6_2,]
+        });
+        bounds_group.addLayer(layer_InfrastructuresPubliques_6);
+        map.addLayer(layer_InfrastructuresPubliques_6);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .title += 'Search for a place';
+        var overlaysTree = [
+            {label: '<img src="legend/InfrastructuresPubliques_6.png" /> Infrastructures Publiques', layer: layer_InfrastructuresPubliques_6},
+            {label: '<img src="legend/ParcellesDisponibles_5.png" /> Parcelles Disponibles', layer: layer_ParcellesDisponibles_5},
+            {label: 'PS-OCEANS<br /><table><tr><td style="text-align: center;"><img src="legend/PSOCEANS_4_PointeSareneVilleneuve0.png" /></td><td>Pointe Sarene Villeneuve</td></tr><tr><td style="text-align: center;"><img src="legend/PSOCEANS_4_PointeSareneSapco1.png" /></td><td>Pointe Sarene Sapco</td></tr><tr><td style="text-align: center;"><img src="legend/PSOCEANS_4_PointeSareneCity2.png" /></td><td>Pointe Sarene City</td></tr><tr><td style="text-align: center;"><img src="legend/PSOCEANS_4_PointeSareneCityExtension3.png" /></td><td>Pointe Sarene City Extension</td></tr></table>', layer: layer_PSOCEANS_4},
+            {label: '<img src="legend/FORETCLASSE_3.png" /> FORET CLASSE', layer: layer_FORETCLASSE_3},
+            {label: '<img src="legend/LimiteMalicounda_2.png" /> Limite Malicounda', layer: layer_LimiteMalicounda_2},
+            {label: 'Limite Village Malicounda<br /><table><tr><td style="text-align: center;"><img src="legend/LimiteVillageMalicounda_1_FALOKH0.png" /></td><td>FALOKH</td></tr><tr><td style="text-align: center;"><img src="legend/LimiteVillageMalicounda_1_FANDANE1.png" /></td><td>FANDANE</td></tr><tr><td style="text-align: center;"><img src="legend/LimiteVillageMalicounda_1_GAGNABOUGOU2.png" /></td><td>GAGNABOUGOU</td></tr><tr><td style="text-align: center;"><img src="legend/LimiteVillageMalicounda_1_KEURBALLALO3.png" /></td><td>KEUR BALLA LO</td></tr><tr><td style="text-align: center;"><img src="legend/LimiteVillageMalicounda_1_MALICOUNDABAMBARA4.png" /></td><td>MALICOUNDA BAMBARA</td></tr><tr><td style="text-align: center;"><img src="legend/LimiteVillageMalicounda_1_MALICOUNDASERERE5.png" /></td><td>MALICOUNDA SERERE</td></tr><tr><td style="text-align: center;"><img src="legend/LimiteVillageMalicounda_1_MALICOUNDAWOLOF6.png" /></td><td>MALICOUNDA WOLOF</td></tr><tr><td style="text-align: center;"><img src="legend/LimiteVillageMalicounda_1_MBALLING7.png" /></td><td>MBALLING</td></tr><tr><td style="text-align: center;"><img src="legend/LimiteVillageMalicounda_1_MBOULEME8.png" /></td><td>MBOULEME</td></tr><tr><td style="text-align: center;"><img src="legend/LimiteVillageMalicounda_1_NIANING9.png" /></td><td>NIANING</td></tr><tr><td style="text-align: center;"><img src="legend/LimiteVillageMalicounda_1_POINTESARENE10.png" /></td><td>POINTE SARENE</td></tr><tr><td style="text-align: center;"><img src="legend/LimiteVillageMalicounda_1_ROFF11.png" /></td><td>ROFF</td></tr><tr><td style="text-align: center;"><img src="legend/LimiteVillageMalicounda_1_SALYAREODROME12.png" /></td><td>SALY AREODROME</td></tr><tr><td style="text-align: center;"><img src="legend/LimiteVillageMalicounda_1_SIDIBOUGOU13.png" /></td><td>SIDIBOUGOU</td></tr><tr><td style="text-align: center;"><img src="legend/LimiteVillageMalicounda_1_SINTHIOUMBADANEPEULH14.png" /></td><td>SINTHIOU MBADANE PEULH</td></tr><tr><td style="text-align: center;"><img src="legend/LimiteVillageMalicounda_1_SINTHIOUMBADANESERERE15.png" /></td><td>SINTHIOU MBADANE SERERE</td></tr><tr><td style="text-align: center;"><img src="legend/LimiteVillageMalicounda_1_TAKHOUM16.png" /></td><td>TAKHOUM</td></tr><tr><td style="text-align: center;"><img src="legend/LimiteVillageMalicounda_1_WARANG17.png" /></td><td>WARANG</td></tr></table>', layer: layer_LimiteVillageMalicounda_1},
+            {label: "Google Satellite", layer: layer_GoogleSatellite_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: false, 
+        });
+        lay.addTo(map);
+		document.addEventListener("DOMContentLoaded", function() {
+            // set new Layers List height which considers toggle icon
+            function newLayersListHeight() {
+                var layerScrollbarElement = document.querySelector('.leaflet-control-layers-scrollbar');
+                if (layerScrollbarElement) {
+                    var layersListElement = document.querySelector('.leaflet-control-layers-list');
+                    var originalHeight = layersListElement.style.height 
+                        || window.getComputedStyle(layersListElement).height;
+                    var newHeight = parseFloat(originalHeight) - 50;
+                    layersListElement.style.height = newHeight + 'px';
+                }
+            }
+            var isLayersListExpanded = true;
+            var controlLayersElement = document.querySelector('.leaflet-control-layers');
+            var toggleLayerControl = document.querySelector('.leaflet-control-layers-toggle');
+            // toggle Collapsed/Expanded and apply new Layers List height
+            toggleLayerControl.addEventListener('click', function() {
+                if (isLayersListExpanded) {
+                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
+                } else {
+                    controlLayersElement.classList.add('leaflet-control-layers-expanded');
+                }
+                isLayersListExpanded = !isLayersListExpanded;
+                newLayersListHeight()
+            });	
+			// apply new Layers List height if toggle layerstree
+			if (controlLayersElement) {
+				controlLayersElement.addEventListener('click', function(event) {
+					var toggleLayerHeaderPointer = event.target.closest('.leaflet-layerstree-header-pointer span');
+					if (toggleLayerHeaderPointer) {
+						newLayersListHeight();
+					}
+				});
+			}
+            // Collapsed/Expanded at Start to apply new height
+            setTimeout(function() {
+                toggleLayerControl.click();
+            }, 10);
+            setTimeout(function() {
+                toggleLayerControl.click();
+            }, 10);
+            // Collapsed touch/small screen
+            var isSmallScreen = window.innerWidth < 650;
+            if (isSmallScreen) {
+                setTimeout(function() {
+                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
+                    isLayersListExpanded = !isLayersListExpanded;
+                }, 500);
+            }  
+        });       
+        setBounds();
+        var i = 0;
+        layer_LimiteVillageMalicounda_1.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['Nom'] !== null?String('<div style="color: #ffffff; font-size: 10pt; font-weight: bold; font-family: \'Times New Roman\', sans-serif;">' + layer.feature.properties['Nom']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_LimiteVillageMalicounda_1'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_PSOCEANS_4.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['NumParcell'] !== null?String('<div style="color: #ffffff; font-size: 8pt; font-weight: bold; font-family: \'Times New Roman\', sans-serif;">' + layer.feature.properties['NumParcell']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_PSOCEANS_4'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_ParcellesDisponibles_5.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['NumParcell'] !== null?String('<div style="color: #323232; font-size: 8pt; font-weight: bold; font-family: \'Times New Roman\', sans-serif;">' + layer.feature.properties['NumParcell']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_ParcellesDisponibles_5'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        map.addControl(new L.Control.Search({
+            layer: layer_PSOCEANS_4,
+            initial: false,
+            hideMarkerOnCollapse: true,
+            propertyName: 'NumParcell'}));
+        document.getElementsByClassName('search-button')[0].className +=
+         ' fa fa-binoculars';
+        resetLabels([layer_LimiteVillageMalicounda_1,layer_PSOCEANS_4,layer_ParcellesDisponibles_5,layer_InfrastructuresPubliques_6]);
+        map.on("zoomend", function(){
+            resetLabels([layer_LimiteVillageMalicounda_1,layer_PSOCEANS_4,layer_ParcellesDisponibles_5,layer_InfrastructuresPubliques_6]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_LimiteVillageMalicounda_1,layer_PSOCEANS_4,layer_ParcellesDisponibles_5,layer_InfrastructuresPubliques_6]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_LimiteVillageMalicounda_1,layer_PSOCEANS_4,layer_ParcellesDisponibles_5,layer_InfrastructuresPubliques_6]);
+        });
+        </script>
+    </body>
+</html>
